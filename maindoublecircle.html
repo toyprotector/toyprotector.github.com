@@ -1,0 +1,48 @@
+<html>
+<body>
+<canvas id="mycanvas" width="512" height="512"></canvas>
+<script>
+mcanv = document.getElementById("mycanvas");
+ctx = mcanv.getContext("2d");
+
+function circle(context, cx, cy, r){
+    context.beginPath();     context.arc(cx, cy, r, 0, 2 * Math.PI, false);
+    context.fillStyle = 'green';     context.fill();
+    context.lineWidth = 0;     context.strokeStyle = '#003300';     context.stroke();
+}
+function clear(context,canvas){
+context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function load(){
+    x1=0;y1=0;t=0;w1=0.5;r1=50;
+x2=0;y2=0;w2=-2;r2=25;
+x=0;y=0;
+}
+function update(dt){
+    t=t+dt;
+x1=r1*Math.cos(w1*t/1000);
+y1=r1*Math.sin(w1*t/1000);
+x2=r2*Math.cos(w2*t/1000);
+y2=r2*Math.sin(w2*t/1000);
+    x=256+x1+x2;
+y=256+y1+y2;
+}
+function draw(context){
+    //clear(context, mcanv);
+    circle(context, x, y, 1);
+}
+
+lasttime=new Date().getTime();
+(function () {
+   load(); 
+   setInterval(function(){
+thistime=new Date().getTime();
+update(thistime-lasttime);
+draw(ctx);
+lasttime=thistime;}, 16);
+})();
+
+</script>
+</body>
+</html>
