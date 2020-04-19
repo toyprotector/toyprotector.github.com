@@ -1,0 +1,42 @@
+<html>
+<body>
+<div>hello world</div>
+<a href="http://dis.tinychan.org/prog">/prog/</a>
+
+<a href="file:///sdcard/">file:///sdcard/</a>
+
+<div id="div1">
+sida
+</div>
+<script>
+//alert(1);
+</script>
+<script>
+//mydiv1=document.getElementById("div1");
+//function myget(url){
+//alert(0);
+function reqListener () {
+///alert(8);
+    console.log(this.responseText);
+//alert(9);
+    alert(this.responseText);
+//alert(10);
+    body.innerHTML=this.responseText;
+//alert(11);
+}
+//alert(1);
+var oReq = new XMLHttpRequest();
+//alert(oReq);
+
+oReq.addEventListener("load", reqListener);
+myurl="http://dis.tinychan.org/prog";
+
+oReq.open("GET", myurl);
+
+oReq.send();
+
+//}
+//myget("http://www.example.org/");
+</script>
+</body>
+</html>
