@@ -1,0 +1,67 @@
+<html>
+<body>
+<canvas id="mycanvas" width="512" height="512"></canvas>
+<script>
+mcanv = document.getElementById("mycanvas");
+ctx = mcanv.getContext("2d");
+
+function circle(context, cx, cy, r){
+    context.beginPath();
+    context.arc(cx, cy, r, 0, 2 * Math.PI, false);
+    context.fillStyle = 'green';
+    context.fill();
+    context.lineWidth = 0;
+    context.strokeStyle = '#003300';
+    context.stroke();
+}
+function line(ctx, fx, fy, tx, ty){
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.moveTo(fx, fy);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+}
+
+function clear(context,canvas){
+context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function load(){
+    x=256;y=256;t=0;w=1;r=5;xlast=256;ylast=256;
+}
+function update(dt){
+    t=t+dt;
+    xlast=x;ylast=y;
+    x=256+t*r*Math.cos(th+w*t);
+    y=256+t*r*Math.sin(th+w*t);
+    
+}
+function draw(context){
+    //clear(context, mcanv);
+    //circle(context, x, y, 1);
+    line(context,xlast,ylast,x,y);
+}
+
+dt=16/1000;
+/*(function () {
+   load(); 
+   setInterval(function(){
+update(dt);
+draw(ctx);}, 0);
+})();*/
+
+th=0;
+setInterval(function(){
+clear(ctx, mcanv);
+load();
+while (x<876) {
+    update(dt);
+    draw(ctx);
+}
+th+=1/10;
+}, 1);
+
+
+</script>
+</body>
+</html>
