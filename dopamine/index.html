@@ -1,0 +1,100 @@
+<html>
+<body>
+<canvas id="mycanvas" width="320" height="320" ></canvas>
+<script>
+//alert(111);
+</script>
+
+<script>
+cnv = document.getElementById("mycanvas");
+ctx = cnv.getContext("2d");
+
+//alert(1);
+objects = [];
+noos = 0;
+
+null_particle = {null: 1};
+
+//alert(2);
+
+function particle(x, y, vx, vy, duration){
+  var p = {x:x, y:y, vx:vx, vy:vy, timeoff : curr_time + duration };
+  objects[noos++] = p;
+}
+
+//alert(3);
+
+function explosion(x, y){
+  for (i=0; i<100; i++){
+    var th = 2*Math.PI*Math.random();
+    var r = 400;
+    particle(x, y, r*Math.cos(th), r*Math.sin(th), 3500); 
+  }
+}
+//alert(4);
+
+
+function load(){
+  explosion(160, 160);
+}
+
+
+//alert(5);
+
+curr_time = 0;
+
+function update(dt){
+  //tratar efeito
+  curr_time += dt;
+  for (i=0; i<objects.length; i++){
+    //alert(i);
+    var p = objects[i];
+    if (p.null) continue;
+    p.x += p.vx*dt/1000;
+    p.y += p.vy*dt/1000;
+    if ( p.timeoff <= curr_time ) { objects[i] = null_particle; }
+  }  
+
+
+  //chance de nova explosão
+  if (Math.random() < 0.2){
+    explosion(320*Math.random(), 320*Math.random());
+  }
+}
+//alert(6);
+
+function draw(){
+  ctx.clearRect(0,0, 320, 320);
+  for (i=0; i<objects.length; i++){
+    //alert(i);
+    var p = objects[i];
+    if (p.null) continue;
+    ctx.fillStyle = "red";
+    ctx.fillRect(p.x, p.y, 10, 10);
+  }
+}
+//alert(7);
+
+function start(){
+  load();
+  count = 0;
+  setInterval(function () { 
+	count += 1;
+        //if (count % 5 == 0) { ctx.clearRect(); } 
+	update(100); draw(); 
+  }, 100);
+}
+
+//alert(8);
+
+//setTimeout(start, 200);
+
+//alert(9);
+
+start();
+
+//alert(10);
+
+</script>
+</body>
+</html>
