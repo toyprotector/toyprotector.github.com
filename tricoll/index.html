@@ -1,0 +1,41 @@
+<html>
+<head>
+<script src="vector2d.js"></script>
+</head>
+<canvas id="mycanvas" width="800" height="400"></canvas>
+
+<script>
+//alert(0);
+</script>
+
+<script>
+//alert(1);
+mycnv = document.getElementById("mycanvas");
+//alert(2);
+context = mycnv.getContext("2d");
+//alert(3);
+function drawtriangle(tri){
+  //alert(6);
+  context.beginPath();
+  context.moveTo(tri.v1.x, tri.v1.y);
+  context.lineTo(tri.v2.x, tri.v2.y);
+  context.lineTo(tri.v3.x, tri.v3.y);
+  context.lineTo(tri.v1.x, tri.v1.y);
+  context.stroke();
+}
+
+//alert(4);
+var mytri = newtri( newvec(0, 5), newvec(400, 400) , newvec(800, 5) );
+var mytri2 = newtri( newvec(0, 25), newvec(5, 30) , newvec(10, 25) );
+var mytri3 = newtri( newvec(20, 45), newvec(35, 50) , newvec(50, 45) );
+
+//alert(4.5);
+drawtriangle( mytri );
+drawtriangle( mytri2 );
+drawtriangle( mytri3 );
+
+
+alert("Does tri1 collide with tri2? " + tricoll(mytri, mytri2));
+//alert(5);
+</script>
+</html>
