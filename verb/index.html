@@ -1,0 +1,314 @@
+<html>
+<head>
+<script src="vector2d.js"></script>
+</head>
+<style>
+table {
+  width: 100%;
+}
+
+th {
+  height: 50px;
+}
+</style>
+<H1>Touchball offline two player (tablet)</H1>
+Touch your team's area and drag to throw
+First to 100 goals wins
+<table>
+<!--tr><td><input id="myText" type="text" maxlength="400" /> <button onclick="onPress();">Press</button></td></tr-->
+
+<!--tr><td><textarea  ></textarea></td></tr-->
+<tr><td><p id="myplacar"></p></td></tr>
+<tr><td><canvas id="mycanvas"  width="800" height="400" style="border: 1px solid black;" ></canvas></td></tr>
+
+</table>
+
+
+<script>
+var myText = document.getElementById("myText");
+var mycnv = document.getElementById("mycanvas");
+var context = mycnv.getContext("2d");
+
+function onPress(){
+  if (myText.value.includes("ball")){
+    alert("balls! \\o/");
+  }
+}
+
+function make(shape, position, speed, dir){
+  colors = [ "red", "blue" ];  //, "yellow", "green", "gray", "orange" ];
+  var color = colors[Math.floor(6*Math.random())];
+  var obj =   {count:count, color:color, shape:shape, radius:20, position:position, velocity: scalevec(speed, dir) };
+
+  objects.push(obj);
+  //obj.id = objects.length;
+  return obj
+}
+
+objects = [];
+
+
+// mouse eventos
+
+function myonclick(){
+  //alert("making ball...");
+  make("ball", {x:mousex,y:mousey}, 10, newvec(0,-1));
+}
+
+var mousex = 0; var mousey=0;
+var rectObj = mycnv.getBoundingClientRect();
+mycnv.onmousemove = function (event) {
+mousex = event.clientX  - rectObj.left;
+mousey = event.clientY - rectObj.top;
+}
+
+
+/// ontouchstart, ontouchmove, ontouchend, ontouchcancel
+
+var fromx = 0; var fromy = 0;
+var tox = 0; var toy = 0;
+
+var mytouches = {};
+
+//var touchgoing = false;
+
+mycnv.ontouchstart = function (event) {
+  //alert(1);
+  //touchgoing = true;
+  for (var i = 0; i<event.touches.length; i++){
+    var touch = event.touches[i];
+    fromx = touch.clientX - rectObj.left;
+    fromy = touch.clientY - rectObj.top;
+    mytouches[touch.identifier] = {fromx:fromx, fromy:fromy, identifier:touch.identifier};
+  }  
+return false;
+}
+
+mycnv.ontouchmove = function (event) {
+  for (var i = 0; i<event.touches.length; i++){
+    var touch = event.touches[i];
+    tox = touch.clientX - rectObj.left;
+    toy = touch.clientY - rectObj.top;
+    mytouches[touch.identifier].tox = tox;
+    mytouches[touch.identifier].toy = toy;
+  }
+return false;
+}
+
+mycnv.ontouchend = function (event) { //hoje aprendi que ontouchend' event n~ao tem touches  //mas tem!
+  //alert(mytouches);
+  var touches = event.changedTouches;
+  for (var i = 0; i<touches.length; i++){
+  var touch = touches[i];
+  //alert(touch);
+  var wtouch = mytouches[touch.identifier];
+  var fromv = newvec(wtouch.fromx, wtouch.fromy);
+  var tov = newvec(wtouch.tox, wtouch.toy);
+  var subv = subvec(tov, fromv);
+  var mag = magvec(subv);
+  var team = -1;
+  if (wtouch.fromx <= 100) { 
+    team = 0;  //left
+    var o = make("ball", fromv, 1, subv);
+    o.team = team;
+    o.color = "red";
+  } else if (wtouch.fromx >= 800-100){
+    team = 1;
+    var o = make("ball", fromv, 1, subv);
+    o.team = team;
+    o.color = "blue";
+  } else {
+    //non facere
+  }
+  //alert(Math.sqrt(dotvec(subv, subv)) + " " +  subv.x + " " + subv.y);
+  //fromx = 0; fromy = 0; tox=0;toy=0;
+  }
+  return false;
+}
+
+
+
+
+// draw functiones
+
+function objdraw(obj){
+  switch (obj.shape) {
+    case "ball":
+      circle(obj.position.x, obj.position.y, obj.radius, obj.color);
+    break;
+    default:
+    break;
+  }
+}
+
+function circle(cx, cy, r, color) {
+      var centerX = cx;
+      var centerY = cy;
+      var radius = r;
+
+      context.beginPath();
+      context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+      context.fillStyle = color;
+      context.fill();
+      //context.lineWidth = 5;
+      //context.strokeStyle = '#003300';
+      //context.stroke();
+}
+
+
+placar = { left:0, right:0}
+var placarstr = "0 x 0";
+
+//aux
+var gameover = false;
+var winner = -1;
+
+function updateplacar(){
+  //var myplacar = document.getElementById("myplacar");
+  //myplacar.innerHTML = myplacar.innerHTML;
+  placarstr = placar.left + " x " + placar.right;
+  if (placar.left >= 100){
+    //Left/Red wins
+    gameover = true;
+    winner = 0;
+  } else if (placar.right >= 100){
+    //Right/Blue wins
+    gameover = true;
+    winner = 1;
+  }
+}
+
+function expire(obj){
+    var index = objects.indexOf(obj);
+    objects.splice(index, 1);
+}
+
+function mycollidewithborder(obj){
+  if (obj.position.y <= 0 || obj.position.y >= 400 ) {
+    obj.velocity.y = -obj.velocity.y
+    return;
+  }
+  if (obj.position.x <= 0) {
+    //splice/delete it
+    //aumenta placar se obj.team = right = 1
+    var index = objects.indexOf(obj);
+    objects.splice(index, 1);
+    if (obj.team == 1){
+      placar.right+=1;
+      updateplacar();
+    }
+  }
+  if (obj.position.x >= 800) {
+    var index = objects.indexOf(obj);
+    objects.splice(index, 1);
+    if (obj.team == 0){    
+      placar.left+=1;
+      updateplacar();
+    }
+  }
+}
+
+function myobjscollide(o1,o2){
+  return magvec(subvec(o1.position, o2.position)) <= o1.radius + o2.radius;
+}
+
+function mycollideobjs(o1,o2){
+  var deltav2 = scalevec(2/(1+1), subvec(o1.velocity, o2.velocity));  //1/(1+m2/m1), neste caso 1/2
+  var deltav1 = scalevec(-2/(1+1), subvec(o1.velocity, o2.velocity));  //1/(1+m2/m1), neste caso 1/2
+  o1.velocity.x += deltav1.x;
+  o1.velocity.y += deltav1.y;
+  o2.velocity.x += deltav2.x;
+  o2.velocity.y += deltav2.y;
+  
+  //repos
+  var braco = subvec(o1.position, o2.position);
+  var v = sumvec(o2.position, scalevec(1/2, braco));
+  var d = (o1.radius + o2.radius - magvec(braco))/2;
+  var m =magvec(braco);
+  var deltap2 = scalevec(-d/m, braco);
+  var deltap1 = scalevec(d/m, braco);
+  o1.position.x += deltap1.x;
+  o1.position.y += deltap1.y;
+  o2.position.x += deltap2.x;
+  o2.position.y += deltap2.y;
+}
+
+function myuniteobjs(o1, o2){
+  //calcula as massas a partir do raio: m=k*A
+  //
+}
+
+
+//loop principal
+function load(){
+  
+}
+
+var count = 0;
+
+function update(){
+  count += 1;
+  for (var i = 0; i<objects.length; i++){
+    var obj = objects[i];
+    var dt = 0.02;
+    //expiration
+    if ((count - obj.count)*dt >= 30){ //30 secundos (realitate 60)
+      expire(obj);
+    } 
+    obj.position.x += obj.velocity.x*dt;
+    obj.position.y += obj.velocity.y*dt;
+    mycollidewithborder(obj);
+  }
+  for (var i=0; i<objects.length; i++){
+    //todo: collidir bola com bola, mostrar placar, regen mana, gasto de mana por lançamento
+    //E alguns cheques chatinhos, e.g. só arremessar de dentro da área
+    //magobol completo
+    var obji = objects[i];
+    for (var j=i+1; j<objects.length; j++){
+      var objj = objects[j];
+      if (myobjscollide(obji, objj)){
+        //if (obji.team != objj.team){
+          mycollideobjs(obji, objj);
+        //} else {
+          //myuniteobjs(obji, objj);	//summa las areas y fica mema velocitate
+        //}
+      }      
+    }
+  }
+}
+
+function draw(){
+  context.fillStyle = "#CCCCCC";  
+  context.fillRect(0,0, 800, 400);
+  context.fillStyle = "#CC8888"
+  context.fillRect(0,0, 100, 400);
+  context.fillStyle = "#8888CC";
+  context.fillRect(700, 0, 800, 400);
+  context.font = "30px Arial";
+  context.textAlign = "center";
+  context.fillText(placarstr, 400, 42);
+
+  for (var i = 0; i<objects.length; i++){
+    var obj = objects[i];
+    //if (obj.position.x >= 0 && ...
+    objdraw(obj);
+  }
+
+  if (gameover && winner > -1){
+    context.fillStyle = (["red", "blue"])[winner];
+    context.font = "60px Arial";
+    context.textAlign = "center";
+    context.fillText((["Red", "Blue"])[winner] + " wins", 400, 200);
+  }
+
+}
+
+function main(){
+  load();
+  setInterval(function() { update(); draw(); }, 20);
+}
+
+setTimeout(main, 1000);
+</script>
+
+</html>
