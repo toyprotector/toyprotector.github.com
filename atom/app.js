@@ -12,8 +12,8 @@ r2y = r1y;
 
 //alert(-4);
 
-v1m = 0;
-v1th = R(360)*Math.PI/180;
+v1m = 1; //0;
+v1th = 180*Math.PI/180; //R(360)*Math.PI/180;
 
 v2m = 11.8921;
 v2th = 90*Math.PI/180;
